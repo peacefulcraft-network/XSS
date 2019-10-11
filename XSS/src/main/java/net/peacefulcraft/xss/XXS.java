@@ -10,13 +10,19 @@ public class XXS extends JavaPlugin{
 	private static XXSConfig config;
 	public static XXSConfig getXXSConfig() { return config; }
 	
+	private TrenchBounties tb = null;
+	
 	public void onEnable() {
 		instance = this;
 		saveDefaultConfig();
 		config = new XXSConfig(getConfig());
+		
+		tb = new TrenchBounties();
+		getServer().getPluginManager().registerEvents(tb, this);
 	}
 	
 	public void onDisable() {
+		tb.shutdown();
 		saveConfig();
 	}
 	
