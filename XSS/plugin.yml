@@ -1,4 +1,5 @@
-name: TrenchPvP
-main: net.peacefulcraft.xxs.XXS
+name: XXS
+main: net.peacefulcraft.xss.XSS
+description: Cross Server Sync
 version: 1.0
 api-version: 1.14
