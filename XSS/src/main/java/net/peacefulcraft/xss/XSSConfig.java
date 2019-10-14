@@ -2,7 +2,7 @@ package net.peacefulcraft.xss;
 
 import org.bukkit.configuration.file.FileConfiguration;
 
-public class XXSConfig {
+public class XSSConfig {
 
 	private FileConfiguration c;
 	
@@ -11,7 +11,7 @@ public class XXSConfig {
 	private String db_user = "";
 	private String db_password = "";
 	
-	public XXSConfig(FileConfiguration c) {
+	public XSSConfig(FileConfiguration c) {
 		
 		this.c = c;
 		
