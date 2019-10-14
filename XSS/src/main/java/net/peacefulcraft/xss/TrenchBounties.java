@@ -23,13 +23,17 @@ public class TrenchBounties implements Listener{
 	
 	public TrenchBounties() {
 		
-		RegisteredServiceProvider<Economy> rsp = XXS.getInstance().getServer().getServicesManager().getRegistration(Economy.class);
+		RegisteredServiceProvider<Economy> rsp = XSS.getInstance().getServer().getServicesManager().getRegistration(Economy.class);
 		eco = rsp.getProvider();
 		
-		String ip = XXS.getXXSConfig().getDb_ip();
-		String name = XXS.getXXSConfig().getDb_name();
-		String username = XXS.getXXSConfig().getDb_user();
-		String password = XXS.getXXSConfig().getDb_password();
+		mysqlConnect();
+	}
+	
+	public void mysqlConnect() {
+		String ip = XSS.getXXSConfig().getDb_ip();
+		String name = XSS.getXXSConfig().getDb_name();
+		String username = XSS.getXXSConfig().getDb_user();
+		String password = XSS.getXXSConfig().getDb_password();
 		String dbUrl = "jdbc:mysql://" + ip + ":3306/" + name;
 		
 		try {
@@ -41,7 +45,7 @@ public class TrenchBounties implements Listener{
 	
 	public void shutdown() {
 		try {
-			if(mysql.isClosed())
+			if(mysql != null && mysql.isClosed())
 				return;
 			
 			mysql.close();
@@ -61,31 +65,38 @@ public class TrenchBounties implements Listener{
 			public void run() {
 				try {
 				
+					if(mysql.isClosed()) {
+						mysqlConnect();
+					}
+					
 					PreparedStatement stmt = mysql.prepareStatement("SELECT `payout` FROM `bounties` WHERE `uuid`=?");
-					stmt.setString(0, uuid);
+					stmt.setString(1, uuid);
 					ResultSet res = stmt.executeQuery();
 					
 					if(res.next()) {
 						
-						final double payout = res.getDouble(0);
+						final double payout = res.getDouble(1);
 						
-						(new BukkitRunnable() {
-							public void run() {
-								
-								eco.depositPlayer(p, payout);
-								p.sendMessage(
-									ChatColor.DARK_RED + "["+ ChatColor.RED + "Trench" + ChatColor.DARK_RED +
-									ChatColor.RED + " You've earned $" + payout + " on the battle field"
-								);	
-								
-							}
-						}).runTask(XXS.getInstance());
+						if(payout > 0.0) {
 						
-						stmt = mysql.prepareStatement("UPDATE `bounties` SET `payout`= 0 WHERE `uuid`=?");
-						stmt.setString(0, uuid);
-						stmt.execute();
-						
-						stmt.close();
+							(new BukkitRunnable() {
+								public void run() {
+									
+									eco.depositPlayer(p, payout);
+									p.sendMessage(
+										ChatColor.DARK_RED + "["+ ChatColor.RED + "Trench" + ChatColor.DARK_RED + "] " +
+										ChatColor.RED + " You've earned $" + payout + " on the battle field"
+									);	
+									
+								}
+							}).runTask(XSS.getInstance());
+							
+							stmt = mysql.prepareStatement("UPDATE `bounties` SET `payout`= 0 WHERE `uuid`=?");
+							stmt.setString(1, uuid);
+							stmt.execute();
+							
+							stmt.close();
+						}
 						
 					}
 					
@@ -93,7 +104,7 @@ public class TrenchBounties implements Listener{
 					e.printStackTrace();
 				}	
 			}
-		}).runTaskAsynchronously(XXS.getInstance());
+		}).runTaskAsynchronously(XSS.getInstance());
 		
 	}
 	
