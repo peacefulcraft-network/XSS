@@ -22,6 +22,7 @@ public class XSS extends JavaPlugin{
 	}
 	
 	public void onDisable() {
+		tb.shutdown();
 		saveConfig();
 	}
 	
